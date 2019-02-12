@@ -18,27 +18,23 @@ def index():
 
     return dict(message=T('Welcome to web2py!'), rooms=rooms, events=events, outlets=outlets, lights=lights)
 
+
 def sync():
-    return response.json(get_outlets(db))
+    return response.json(dict(outlets=get_outlets(db), lights=get_lights(db)))
 
 
-def SetLight():
-    if True: #try:
-        light = get_light(db, request.vars['light_id'])
-        action = request.vars['action']
-        set_light(db, light, action)
-    #except Exception as error:
-    #    response.flash = "Error turning {} {}".format(action, light['name'])
-    return response.json(get_lights(db))
-
-
-def SetOutlet():
+def set_device():
     try:
-        outlet = get_outlet(db, request.vars['outlet_id'])
         action = request.vars['action']
-        set_outlet(db, outlet, action)
+        Type =   request.vars.get('type', None)
+        if Type == "light":
+            device = get_light(db, request.vars['id'])
+            set_light(db, device, action)
+        elif Type == "outlet":
+            device = get_outlet(db, request.vars['id'])
+            set_outlet(db, device, action)
     except Exception as error:
-        response.flash = "Error turning {} {}".format(action, outlet['name'])
+        response.flash = "Error turning {} {} {}".format(device['name'], Type, action)
     return sync()
 
 

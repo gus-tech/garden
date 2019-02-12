@@ -14,3 +14,8 @@ if os.getcwd() != project_path:
     os.chdir(project_path)
 
 from gluon import *
+
+def action2bool(action):
+    string = str(action).lower().strip()
+    if action == True or action == 1 or string == "on" or string == "1": return True
+    else: return False

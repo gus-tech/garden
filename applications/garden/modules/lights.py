@@ -37,10 +37,6 @@ def set_light(db, light, action, commit=True): # on/off
     return light
 
 
-
-
-
-
 if __name__ == '__main__':
     from db import *
     set_light(db, get_light(db, 1), 'on')
