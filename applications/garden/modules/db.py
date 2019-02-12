@@ -17,6 +17,12 @@ def define_tables(db):
                         Field('completed', 'boolean'),
                         Field('dict', 'json'),
                    )
+    db.define_table('lights',
+                        Field('name', 'string'),
+                        Field('gpio', 'integer'),
+                        Field('room_id', 'integer'),
+                        Field('state_', 'string'),
+                   )
     db.define_table('outlets',
                         Field('name', 'string'),
                         Field('mac', 'string'),

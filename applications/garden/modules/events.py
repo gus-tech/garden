@@ -73,6 +73,28 @@ def handle_events(db):
     for event in events:
         print(event['dict']['summary'])
         handle_outlets(db, event)
+        handle_lights(db, event)
+
+
+def handle_lights(db, event):
+    lights = get_lights(db, event['room_id'])
+    for light in lights:
+        device_action = event['dict']['summary'].split(' ', 1)
+        device = device_action[0].strip().lower()
+        try:
+            action = device_action[1].strip().lower()
+            if light['name'].lower() == device:
+                set_outlet(db, light, action)
+                db(db.events.id == event['id']).update(completed=True)
+                db.commit()
+                event['dict']['colorId'] = color_ids['bold green']
+                update_event(event)
+        except:
+            try:
+                event['dict']['colorId'] = color_ids['bold red']
+                update_event(event)
+                continue
+            except: continue
 
 
 def handle_outlets(db, event):
@@ -83,7 +105,6 @@ def handle_outlets(db, event):
         try:
             action = device_action[1].strip().lower()
             if outlet['name'].lower() == device:
-                print(event['id'], event['dict']['summary'])
                 set_outlet(db, outlet, action)
                 db(db.events.id == event['id']).update(completed=True)
                 db.commit()
