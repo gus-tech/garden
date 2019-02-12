@@ -54,12 +54,17 @@ def sync_events(db, max_results = 12, events_log_file = "events.log"):
             events_result = get_calendar().events().list(
                     calendarId=room['calendar_id'], timeMin=now, maxResults=max_results, singleEvents=True, orderBy='startTime').execute()
             events = events_result.get('items', [])
+            old_events = db(db.events.room_id == room['id']).select(db.events.ALL).as_dict('event_id')
+            new_events = []
             for event in events:
                 start_time = datetime.strptime(event['start'].get('dateTime', event['start'].get('date'))[:-6], '%Y-%m-%dT%H:%M:%S')
                 end_time = datetime.strptime(event['end'].get('dateTime', event['end'].get('date'))[:-6], '%Y-%m-%dT%H:%M:%S')
+                new_events.append(event['id'])
                 db.events.update_or_insert(db.events.event_id == event['id'], event_id=event['id'],
                                            calendar_id=room['calendar_id'], room_id=room['id'],
                                            start_time=start_time, end_time=end_time, dict=event,)
+            for event_id in old_events:
+                if not event_id in new_events: db(db.events.event_id == event_id).delete()
         except:
             message = "Failed to get events for room {}: {} - calendar_id: {}".format(room['id'], room['name'], room['calendar_id'])
             print(message)

@@ -83,8 +83,8 @@ p {
                 {{for light in lights[room['id']]:}}
                 <div id="light{{=light['id']}}" class="outlet-container">
                     <p>{{=light['name']}}</p>
-                    <button id="on{{=light['name']}}{{=light['room_id']}}"  type="button" class="btn {{if light.get('state_', None) == '1':}}btn-success{{pass}}" onclick='set_device({{=XML(json.dumps(light.as_dict()))}}, "on", "light")'>On</button>
-                    <button id="off{{=light['name']}}{{=light['room_id']}}" type="button" class="btn {{if light.get('state_', None) == '0':}}btn-danger{{pass}}" onclick='set_device({{=XML(json.dumps(light.as_dict()))}}, "off", "light")'>Off</button>
+                    <button id="on{{=light['name']}}{{=light['room_id']}}"  type="button" class="btn {{if light.get('state_', None):}}btn-success{{pass}}" onclick='set_device({{=XML(json.dumps(light.as_dict()))}}, "on", "light")'>On</button>
+                    <button id="off{{=light['name']}}{{=light['room_id']}}" type="button" class="btn {{if not light.get('state_', None):}}btn-danger{{pass}}" onclick='set_device({{=XML(json.dumps(light.as_dict()))}}, "off", "light")'>Off</button>
                 </div>
                 {{pass}}
             </div>
@@ -95,8 +95,8 @@ p {
                 {{for outlet in outlets[room['id']]:}}
                 <div id="outlet{{=outlet['id']}}" class="outlet-container">
                     <p>{{=outlet['name']}}</p>
-                    <button id="on{{=outlet['name']}}{{=outlet['room_id']}}"  type="button" class="btn {{if outlet.get('state_', None) == 'on':}}btn-success{{pass}}" onclick='set_device({{=XML(json.dumps(outlet.as_dict()))}}, "on", "outlet")'>On</button>
-                    <button id="off{{=outlet['name']}}{{=outlet['room_id']}}" type="button" class="btn {{if outlet.get('state_', None) == 'off':}}btn-danger{{pass}}" onclick='set_device({{=XML(json.dumps(outlet.as_dict()))}}, "off", "outlet")'>Off</button>
+                    <button id="on{{=outlet['name']}}{{=outlet['room_id']}}"  type="button" class="btn {{if outlet.get('state_', None):}}btn-success{{pass}}" onclick='set_device({{=XML(json.dumps(outlet.as_dict()))}}, "on", "outlet")'>On</button>
+                    <button id="off{{=outlet['name']}}{{=outlet['room_id']}}" type="button" class="btn {{if not outlet.get('state_', None):}}btn-danger{{pass}}" onclick='set_device({{=XML(json.dumps(outlet.as_dict()))}}, "off", "outlet")'>Off</button>
                 </div>
                 {{pass}}
             </div>
@@ -134,7 +134,7 @@ p {
             for(var i in response[j]){
                 var device = response[j][i]
                 var id = device['name'] + device['room_id'];
-                if(device['state_'] == "on" || device['state_'] == 1){
+                if(device['state_'] == true){
                     $("#on"+id).addClass("btn-success"); $("#off"+id).removeClass("btn-danger");
                 }else{
                     $("#off"+id).addClass("btn-danger"); $("#on"+id).removeClass("btn-success");

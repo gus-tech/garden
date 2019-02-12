@@ -27,8 +27,8 @@ def get_outlets(db, room_id=None):
 def set_outlet(db, outlet, action, timeout=3, commit=True): # on/off
     action = action.strip().lower()
     url = "http://{}/cgi-bin/json.cgi?set={}".format(outlet['ip'], action)
-    try: outlet['state_'] = json.loads(urllib2.urlopen(url, timeout=timeout).read())['state']
-    except: outlet['state_'] = json.loads(urllib2.urlopen(url, timeout=timeout).read())['state']
+    try: outlet['state_'] = action2bool(json.loads(urllib2.urlopen(url, timeout=timeout).read())['state'])
+    except: outlet['state_'] = action2bool(json.loads(urllib2.urlopen(url, timeout=timeout).read())['state'])
     outlet.update_record()
     if commit: db.commit()
     return outlet
@@ -36,8 +36,8 @@ def set_outlet(db, outlet, action, timeout=3, commit=True): # on/off
 
 def get_state(db, outlet, timeout=3, commit=True):
     url = "http://{}/cgi-bin/json.cgi?get=state".format(outlet['ip'])
-    try: outlet['state_'] = json.loads(urllib2.urlopen(url, timeout=timeout).read())['state']
-    except: outlet['state_'] = json.loads(urllib2.urlopen(url, timeout=timeout).read())['state']
+    try: outlet['state_'] = action2bool(json.loads(urllib2.urlopen(url, timeout=timeout).read())['state'])
+    except: outlet['state_'] = action2bool(json.loads(urllib2.urlopen(url, timeout=timeout).read())['state'])
     outlet.update_record()
     if commit: db.commit()
     return outlet

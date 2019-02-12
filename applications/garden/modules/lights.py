@@ -31,7 +31,7 @@ def set_light(db, light, action, commit=True): # on/off
     with open(gpio_root + str(light['gpio']) + "/direction", 'w') as value: value.write("out")
     action = action2int(action)
     with open(gpio_root + str(light['gpio']) + "/value", 'w') as value: value.write(str(action))
-    light['state_'] = action
+    light['state_'] = action2bool(action)
     light.update_record()
     if commit: db.commit()
     return light

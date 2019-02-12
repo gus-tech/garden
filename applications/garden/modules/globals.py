@@ -17,5 +17,5 @@ from gluon import *
 
 def action2bool(action):
     string = str(action).lower().strip()
-    if action == True or action == 1 or string == "on" or string == "1": return True
+    if action == 1 or string == "on" or string == "1": return True
     else: return False

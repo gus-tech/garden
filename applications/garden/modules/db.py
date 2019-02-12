@@ -21,14 +21,14 @@ def define_tables(db):
                         Field('name', 'string'),
                         Field('gpio', 'integer'),
                         Field('room_id', 'integer'),
-                        Field('state_', 'string'),
+                        Field('state_', 'boolean'),
                    )
     db.define_table('outlets',
                         Field('name', 'string'),
                         Field('mac', 'string'),
                         Field('ip', 'string'),
                         Field('room_id', 'integer'),
-                        Field('state_', 'string'),
+                        Field('state_', 'boolean'),
                    )
     return db
 
