@@ -1,0 +1,8 @@
+**/gluon
+**/errors
+**/cache
+**/private
+**/sessions
+**/uploads
+*.pyc
+*.bak

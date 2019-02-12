@@ -1,0 +1,157 @@
+{{import json}}
+{{extend 'layout.html'}}
+
+<style>
+.main-container {
+    margin: 0;
+    padding: 0;
+}
+
+.rooms-container {
+    display: flex;
+    flex-wrap: wrap;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+.room-container {
+    width: 48%;
+    text-align: center;
+    border-style: solid;
+    margin-right: 5px;
+    margin-top: 5px;
+    padding: 0;
+}
+.outlets-container {
+    width: 48%;
+    display: flex;
+    flex-wrap: wrap;
+    text-align: center;
+    border-style: solid;
+    margin: 5px;
+    padding: 0;
+}
+.outlet-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    text-align: center;
+    vertical-align: middle;
+    border-style: solid;
+    margin: 5px;
+    padding-left: 10px
+}
+
+
+p {
+    width: 50%;
+    margin: 0;
+    padding-top: 5px;
+    vertical-align: middle;
+}
+
+.rooms-container h1, h2 {
+    width: 100%;
+    margin: 0;
+    vertical-align: middle;
+    background: lightgrey;
+    border-style: outset;
+}
+</style>
+
+
+
+{{block header}}
+<div class="jumbotron jumbotron-fluid background" style="background-color: #333; color:white; padding:30px;word-wrap:break-word;">
+  <div class="container center">
+    <h1 class="display-5">Garden</h1>
+  </div>
+</div>
+{{end}}
+
+<div class="rooms-container">
+    {{for room in rooms:}}
+    <div class="room-container">
+        <h1>{{=room['name']}} Room</h1>
+        {{if len(outlets[room['id']]) > 0:}}
+            <div class="outlets-container">
+                <h2>Outlets</h2>
+                {{for outlet in outlets[room['id']]:}}
+                <div id="outlet{{=outlet['id']}}" class="outlet-container">
+                    <p>{{=outlet['name']}}</p>
+                    <button id="on{{=outlet['id']}}"  type="button" class="btn {{if outlet.get('state_', None) == 'on':}}btn-success{{pass}}" onclick='set_outlet({{=XML(json.dumps(outlet.as_dict()))}}, "on")'>On</button>
+                    <button id="off{{=outlet['id']}}" type="button" class="btn {{if outlet.get('state_', None) == 'off':}}btn-danger{{pass}}" onclick='set_outlet({{=XML(json.dumps(outlet.as_dict()))}}, "off")'>Off</button>
+                </div>
+                {{pass}}
+            </div>
+        {{pass}}
+    </div>
+    {{pass}}
+</div>
+
+<script>
+    var refreshRate = 15000;
+    var refreshTimeout;
+
+    resize()
+    refresh(refreshRate)
+
+    $(window).resize(resize)
+    function resize(){
+        if($(window).width() > $(window).height()){
+            $(".room-container").width($(".rooms-container").width()/2-16).css("margin-left", "5px").css("margin-bottom", "5px")
+            $(".outlets-container").width($(".room-container").width()/2-10)
+        }else{
+            $(".room-container").width("100%").css("margin-left", "0").css("margin-bottom", "0")
+            $(".outlets-container").width("98%")
+        }
+    }
+
+    function refresh(rate){
+      clearTimeout(refreshTimeout);
+      refreshTimeout = setTimeout(sync, rate);
+    }
+
+    function sync(){
+        clearTimeout(refreshTimeout);
+        $.ajax({
+        url: "{{=URL('sync')}}",
+        type:'POST',
+        dataType: 'json',
+        success: function(response){
+            console.log(response)
+            for(var i in response){
+                if(response[i]['state_'] == "on"){$("#on"+response[i]['id']).addClass("btn-success"); $("#off"+response[i]['id']).removeClass("btn-danger");}
+                else{$("#off"+response[i]['id']).addClass("btn-danger"); $("#on"+response[i]['id']).removeClass("btn-success");}
+            }
+        },
+        complete: function(response){refresh(refreshRate)}
+    })}
+
+    function set_outlet(outlet, action){
+        $("#on"+outlet['id']).attr("disabled", "disabled");
+        $("#off"+outlet['id']).attr("disabled", "disabled");
+        //$("#"+action+outlet['id']).addClass("btn-warning");
+        clearTimeout(refreshTimeout);
+        $.ajax({
+        url: "{{=URL('SetOutlet')}}",
+        type:'POST',
+        data: {"outlet_id": outlet['id'], "action": action},
+        dataType: 'json',
+        success: function(response){
+            console.log(response);
+            for(var i in response){
+                if(response[i]['state_'] == "on"){$("#on"+response[i]['id']).addClass("btn-success"); $("#off"+response[i]['id']).removeClass("btn-danger");}
+                else{$("#off"+response[i]['id']).addClass("btn-danger"); $("#on"+response[i]['id']).removeClass("btn-success");}
+            }
+        },
+        complete: function(response){
+            $("#on"+outlet['id']).removeAttr("disabled");
+            $("#off"+outlet['id']).removeAttr("disabled");
+            //$("#on"+outlet['id']).removeClass("btn-warning");
+            //$("#off"+outlet['id']).removeClass("btn-warning");
+            refresh(refreshRate)
+        }
+    })}
+
+</script>

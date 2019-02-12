@@ -1,0 +1,32 @@
+{{extend 'layout.html'}}
+
+<style>
+.rooms-container {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+}
+.room-container {
+    background: grey;
+}
+</style>
+
+<script>
+    if($(window).width() > $(window).height()) $(".room-container").width("50%")
+</script>
+
+{{block header}}
+<div class="jumbotron jumbotron-fluid background" style="background-color: #333; color:white; padding:30px;word-wrap:break-word;">
+  <div class="container center">
+    <h1 class="display-5">Garden</h1>
+  </div>
+</div>
+{{end}}
+
+<div class="rooms-container">
+    {{for room in rooms:}}
+    <div class="room-container">
+        <h1>{{=room['name']}} Room</h1>
+    </div>
+    {{pass}}
+</div>
