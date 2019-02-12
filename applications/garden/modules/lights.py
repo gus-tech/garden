@@ -2,6 +2,7 @@
 
 from globals import *
 import json
+import time
 
 gpio_root = "/sys/class/gpio/gpio"
 
@@ -27,6 +28,7 @@ def get_lights(db, room_id=None):
 
 
 def set_light(db, light, action, commit=True): # on/off
+    with open(gpio_root + str(light['gpio']) + "/direction", 'w') as value: value.write("out")
     action = action2int(action)
     with open(gpio_root + str(light['gpio']) + "/value", 'w') as value: value.write(str(action))
     light['state_'] = action
@@ -37,10 +39,13 @@ def set_light(db, light, action, commit=True): # on/off
 
 
 
+
+
 if __name__ == '__main__':
     from db import *
-    set_light(db, get_light(db, 1), 1)
-
+    set_light(db, get_light(db, 1), 'on')
+    time.sleep(2)
+    set_light(db, get_light(db, 1), 'off')
     """
     if len(sys.argv) <= 1: get_states(db, get_outlets(db))
     else:

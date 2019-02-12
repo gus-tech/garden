@@ -11,7 +11,7 @@ import json
 import urllib2
 from globals import *
 from outlets import *
-
+from lights import *
 
 color_ids = {}
 color_ids['bold blue']  = 9   # color: #5484ed, index: 0
@@ -84,7 +84,7 @@ def handle_lights(db, event):
         try:
             action = device_action[1].strip().lower()
             if light['name'].lower() == device:
-                set_outlet(db, light, action)
+                set_light(db, light, action)
                 db(db.events.id == event['id']).update(completed=True)
                 db.commit()
                 event['dict']['colorId'] = color_ids['bold green']

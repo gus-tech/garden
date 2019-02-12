@@ -73,6 +73,18 @@ p {
     {{for room in rooms:}}
     <div class="room-container">
         <h1>{{=room['name']}} Room</h1>
+        {{if len(lights[room['id']]) > 0:}}
+            <div class="outlets-container">
+                <h2>Lights</h2>
+                {{for light in lights[room['id']]:}}
+                <div id="light{{=light['id']}}" class="outlet-container">
+                    <p>{{=light['name']}}</p>
+                    <button id="on{{=light['id']}}"  type="button" class="btn {{if light.get('state_', None) == '1':}}btn-success{{pass}}" onclick='set_light({{=XML(json.dumps(light.as_dict()))}}, "on")'>On</button>
+                    <button id="off{{=light['id']}}" type="button" class="btn {{if light.get('state_', None) == '0':}}btn-danger{{pass}}" onclick='set_light({{=XML(json.dumps(light.as_dict()))}}, "off")'>Off</button>
+                </div>
+                {{pass}}
+            </div>
+        {{pass}}
         {{if len(outlets[room['id']]) > 0:}}
             <div class="outlets-container">
                 <h2>Outlets</h2>
@@ -126,6 +138,32 @@ p {
             }
         },
         complete: function(response){refresh(refreshRate)}
+    })}
+    
+    function set_light(light, action){
+        $("#on"+light['id']).attr("disabled", "disabled");
+        $("#off"+light['id']).attr("disabled", "disabled");
+        //$("#"+action+outlet['id']).addClass("btn-warning");
+        clearTimeout(refreshTimeout);
+        $.ajax({
+        url: "{{=URL('SetLight')}}",
+        type:'POST',
+        data: {"light_id": light['id'], "action": action},
+        dataType: 'json',
+        success: function(response){
+            console.log(response);
+            for(var i in response){
+                if(response[i]['state_'] == 1){$("#on"+response[i]['id']).addClass("btn-success"); $("#off"+response[i]['id']).removeClass("btn-danger");}
+                else{$("#off"+response[i]['id']).addClass("btn-danger"); $("#on"+response[i]['id']).removeClass("btn-success");}
+            }
+        },
+        complete: function(response){
+            $("#on"+light['id']).removeAttr("disabled");
+            $("#off"+light['id']).removeAttr("disabled");
+            //$("#on"+outlet['id']).removeClass("btn-warning");
+            //$("#off"+outlet['id']).removeClass("btn-warning");
+            refresh(refreshRate)
+        }
     })}
 
     function set_outlet(outlet, action){

@@ -2,6 +2,7 @@
 #import datetime
 from events import *
 from outlets import *
+from lights import *
 
 # ---- example index page ----
 def index():
@@ -9,16 +10,27 @@ def index():
     rooms = db().select(db.rooms.ALL)
     outlets = {}
     events = {}
+    lights = {}
     for room in rooms:
         events[room['id']] = get_current_events(db, room['id'])
         outlets[room['id']] = get_outlets(db, room['id'])
-        #for outlet in outlets[room['id']]:
-        #    outlet['state'] = get_state(outlet)
+        lights[room['id']] = get_lights(db, room['id'])
 
-    return dict(message=T('Welcome to web2py!'), rooms=rooms, events=events, outlets=outlets)
+    return dict(message=T('Welcome to web2py!'), rooms=rooms, events=events, outlets=outlets, lights=lights)
 
 def sync():
     return response.json(get_outlets(db))
+
+
+def SetLight():
+    if True: #try:
+        light = get_light(db, request.vars['light_id'])
+        action = request.vars['action']
+        set_light(db, light, action)
+    #except Exception as error:
+    #    response.flash = "Error turning {} {}".format(action, light['name'])
+    return response.json(get_lights(db))
+
 
 def SetOutlet():
     try:
